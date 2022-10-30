@@ -6,6 +6,10 @@ import diskmgr.*;
 import bufmgr.*;
 import index.*;
 import java.io.*;
+import btree.*;
+import chainexception.*;
+import diskmgr.*;
+
 
 /*==========================================================================*/
 /**
@@ -20,10 +24,10 @@ public class SortMerge extends Iterator implements GlobalConst {
 
     /**
      *constructor,initialization
-     *@param in1[]         Array containing field types of R
+     *@param in1         Array containing field types of R
      *@param len_in1       # of columns in R
      *@param s1_sizes      Shows the length of the string fields in R.
-     *@param in2[]         Array containing field types of S
+     *@param in2         Array containing field types of S
      *@param len_in2       # of columns in S
      *@param s2_sizes      Shows the length of the string fields in S
      *@param sortFld1Len   The length of sorted field in R
@@ -36,7 +40,7 @@ public class SortMerge extends Iterator implements GlobalConst {
      *@param in1_sorted    Is am1 sorted?
      *@param in2_sorted    Is am2 sorted?
      *@param order         The order of the tuple: assending or desecnding?
-     *@param outFilter[]   Ptr to the output filter
+     *@param outFilter   Ptr to the output filter
      *@param proj_list     Shows what input fields go where in the output tuple
      *@param n_out_flds    Number of outer relation fileds
      *@exception JoinNewFailed               Allocate failed
@@ -57,12 +61,12 @@ public class SortMerge extends Iterator implements GlobalConst {
      */
 
     public SortMerge(
-        AttrType    in1[], 
+        AttrType[]    in1,
         int         len_in1,                        
-        short       s1_sizes[],
-        AttrType    in2[],                
+        short[]      s1_sizes,
+        AttrType[]    in2,
         int         len_in2,                        
-        short       s2_sizes[],
+        short[]       s2_sizes,
 
         int         join_col_in1,                
         int         sortFld1Len,
@@ -77,8 +81,8 @@ public class SortMerge extends Iterator implements GlobalConst {
         boolean     in2_sorted,                
         TupleOrder  order,
 
-        CondExpr    outFilter[],                
-        FldSpec     proj_list[],
+        CondExpr[]   outFilter,
+        FldSpec[]    proj_list,
         int         n_out_flds
     )
     throws JoinNewFailed ,
@@ -165,6 +169,7 @@ public class SortMerge extends Iterator implements GlobalConst {
            UnknownKeyTypeException,
            Exception
     {
+    return null;
     } // End of get_next
 
 /*--------------------------------------------------------------------------*/
