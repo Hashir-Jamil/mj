@@ -21,6 +21,28 @@ import iterator.*;
  */
 
 public class SortMerge extends Iterator implements GlobalConst {
+    AttrType[]    in1;
+    int         len_in1;
+    short[]      s1_sizes;
+    AttrType[]    in2;
+    int         len_in2;
+    short[]       s2_sizes;
+
+    int         join_col_in1;
+    int         sortFld1Len;
+    int         join_col_in2;
+    int         sortFld2Len;
+
+    int         amt_of_mem;
+    Iterator    am1;
+    Iterator    am2;
+
+    boolean     in1_sorted;
+    boolean     in2_sorted;
+    TupleOrder  order;
+    CondExpr[]   outFilter;
+    FldSpec[]    proj_list;
+    int         n_out_flds;
 
     /**
      *constructor,initialization
@@ -101,6 +123,26 @@ public class SortMerge extends Iterator implements GlobalConst {
         IOException,
         Exception
     {
+        this.in1 = in1;
+        this.len_in1 = len_in1;
+        this.s1_sizes = s1_sizes;
+        this.in2 = in2;
+        this.len_in2 = len_in2;
+        this.s2_sizes = s2_sizes;
+        this.join_col_in1 = join_col_in1;
+        this.sortFld1Len = sortFld1Len;
+        this.join_col_in2 = join_col_in2;
+        this.sortFld2Len = sortFld2Len;
+        this.amt_of_mem = amt_of_mem;
+        this.am1 = am1;
+        this.am2 = am2;
+        this.in1_sorted = in1_sorted;
+        this.in2_sorted = in2_sorted;
+        this.order = order;
+        this.outFilter = outFilter;
+        this.proj_list = proj_list;
+        this.n_out_flds = n_out_flds;
+
     } // End of SortMerge constructor
 
 /*--------------------------------------------------------------------------*/
@@ -183,7 +225,7 @@ public class SortMerge extends Iterator implements GlobalConst {
 
     public void close() 
         throws JoinsException, 
-            IOException
+            IOException, IndexException
     {
     } // End of close
 
