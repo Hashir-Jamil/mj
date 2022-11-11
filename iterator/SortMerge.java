@@ -46,6 +46,7 @@ public class SortMerge extends Iterator implements GlobalConst {
     CondExpr[] outFilter;
     FldSpec[] proj_list;
     int n_out_flds;
+    private Iterator outerStream,innerStream;
 
     /**
      * constructor,initialization
@@ -146,7 +147,26 @@ public class SortMerge extends Iterator implements GlobalConst {
         this.proj_list = proj_list;
         this.n_out_flds = n_out_flds;
 
-        //prepare the tuples for the join and the
+        //check for sorting --> 1 corresponds to outer and 2 corresponds to inner from here on out
+        //if sorted just reference the private streams to the public iterators
+        if (in1_sorted) {
+            outerStream = am1;
+        }
+        if (in2_sorted) {
+            innerStream = am2;
+        }
+
+        //if not sorted then make new Sort objects for the streams.
+        if (!in1_sorted) {
+            outerStream = new Sort(in1, (short) (in1.length), s1_sizes, am1, join_col_in1, order,
+                sortFld1Len, amt_of_mem);
+        }
+        if (!in2_sorted) {
+            innerStream = new Sort(in2, (short) in2.length, s2_sizes, am2, join_col_in2, order,
+                sortFld2Len, amt_of_mem);
+        }
+
+        //prepare the tuples for the join output, inner and outer inputs
         Tuple joinTuple = new Tuple();
         AttrType[] joinTypes = new AttrType[n_out_flds];
         short[] joinTupleStrSize = null;
@@ -173,7 +193,7 @@ public class SortMerge extends Iterator implements GlobalConst {
         System.out.println("\n Non Sorted File \n");
 //        Tuple presorted = am1.get_next();
 //        do{
-////            System.out.println(presorted.returnTupleByteArray().length);
+////          System.out.println(presorted.returnTupleByteArray().length);
 //            System.out.println(new String(presorted.returnTupleByteArray()));
 //            presorted.tupleCopy(new Tuple());
 //            System.out.println("\n");
@@ -182,8 +202,8 @@ public class SortMerge extends Iterator implements GlobalConst {
 
 
         //create sorters and tuples
-        Sort sorter1 = new Sort(in1, (short) (in1.length), s1_sizes, am1, join_col_in1, order,
-                sortFld1Len, amt_of_mem);
+//        Sort sorter1 = new Sort(in1, (short) (in1.length), s1_sizes, am1, join_col_in1, order,
+//                sortFld1Len, amt_of_mem);
 //        Tuple tuple1 = sorter1.get_next();
 //
 //        System.out.println("\n Sorted File \n");
@@ -194,7 +214,7 @@ public class SortMerge extends Iterator implements GlobalConst {
 //            System.out.println("\n");
 //            tuple1 = sorter1.get_next();
 //        }
-        sorter1.close();
+//        sorter1.close();
         System.out.println("finished sort");
 //
 //        Sort sorter2 = new Sort(in2, (short) in2.length, s2_sizes, am2, join_col_in2, order,
