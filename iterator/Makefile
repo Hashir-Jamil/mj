@@ -1,7 +1,7 @@
-LIBPATH = /eecs/dept/course/2022-23/F/4411/Project/mj/lib/sortmergeAssign.jar
+LIBPATH = /c/Users/X1/sortmergeAssign.jar
 CLASSPATH = ../:$(LIBPATH):
-JAVAC     = /eecs/local/bin/javac -classpath $(CLASSPATH)
-JAVA      = /eecs/local/bin/java  -classpath $(CLASSPATH)
+JAVAC     = javac -classpath $(CLASSPATH)
+JAVA      = java  -classpath $(CLASSPATH)
 
 PROGS = together
 
