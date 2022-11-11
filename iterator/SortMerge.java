@@ -146,19 +146,38 @@ public class SortMerge extends Iterator implements GlobalConst {
         this.proj_list = proj_list;
         this.n_out_flds = n_out_flds;
 
+        System.out.println("\n Non Sorted File \n");
+//        Tuple presorted = am1.get_next();
+//        do{
+////            System.out.println(presorted.returnTupleByteArray().length);
+//            System.out.println(new String(presorted.returnTupleByteArray()));
+//            presorted.tupleCopy(new Tuple());
+//            System.out.println("\n");
+//        }
+//        while (readTuple(presorted, am1));
+
         //create sorters and tuples
-        Sort sorter1 = new Sort(in1, (short) in1.length, s1_sizes, am1, join_col_in1, order,
-                s1_sizes[join_col_in1], amt_of_mem);
-        Tuple tuple1 = sorter1.get_next();
+        Sort sorter1 = new Sort(in1, (short) (in1.length), s1_sizes, am1, join_col_in1, order,
+                sortFld1Len, amt_of_mem);
+//        Tuple tuple1 = sorter1.get_next();
+//
+//        System.out.println("\n Sorted File \n");
+//        while(tuple1 != null){
+//
+//            System.out.println(new String(tuple1.returnTupleByteArray()));
+//            tuple1.tupleCopy(new Tuple());
+//            System.out.println("\n");
+//            tuple1 = sorter1.get_next();
+//        }
+        sorter1.close();
+        System.out.println("finished sort");
+//
+//        Sort sorter2 = new Sort(in2, (short) in2.length, s2_sizes, am2, join_col_in2, order,
+//                sortFld2Len, amt_of_mem);
+//        Tuple tuple2 = sorter2.get_next();
+//        sorter2.close();
 
-        Sort sorter2 = new Sort(in2, (short) in2.length, s2_sizes, am2, join_col_in2, order,
-                s2_sizes[join_col_in2], amt_of_mem);
-        Tuple tuple2 = sorter2.get_next();
 
-        while (readTuple(tuple1, sorter1)) {
-            System.out.println(new String(tuple1.returnTupleByteArray()));
-            tuple1 = sorter1.get_next();
-        }
     } // End of SortMerge constructor
 
     /*--------------------------------------------------------------------------*/
