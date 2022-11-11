@@ -6,8 +6,6 @@ import diskmgr.*;
 import bufmgr.*;
 import index.*;
 import java.io.*;
-import java.lang.reflect.Array;
-
 import btree.*;
 import chainexception.*;
 import diskmgr.*;
@@ -145,19 +143,6 @@ public class SortMerge extends Iterator implements GlobalConst {
         this.proj_list = proj_list;
         this.n_out_flds = n_out_flds;
 
-        //create sorters and tuples
-        Sort sorter1 = new Sort(in1, (short) in1.length, s1_sizes,am1,join_col_in1,order,
-                s1_sizes[join_col_in1],amt_of_mem);
-        Tuple tuple1 = sorter1.get_next();
-
-        Sort sorter2 = new Sort(in2, (short) in2.length, s2_sizes,am2,join_col_in2,order,
-                s2_sizes[join_col_in2],amt_of_mem);
-        Tuple tuple2 = sorter2.get_next();
-
-        while (readTuple(tuple1,sorter1)) {
-            System.out.println(new String(tuple1.returnTupleByteArray()));
-            tuple1 = sorter1.get_next();
-        }
     } // End of SortMerge constructor
 
 /*--------------------------------------------------------------------------*/
@@ -226,9 +211,6 @@ public class SortMerge extends Iterator implements GlobalConst {
            UnknownKeyTypeException,
            Exception
     {
-        Tuple r;
-        Tuple s;
-
     return null;
     } // End of get_next
 
@@ -241,29 +223,10 @@ public class SortMerge extends Iterator implements GlobalConst {
      *@exception IndexException index access error 
      */
 
-    public void close()
-            throws JoinsException,
-            IOException, IndexException, SortException {
-        if (!this.closeFlag) {
-            try {
-                this.am1.close();
-                this.am2.close();
-            } catch (JoinsException je) {
-                throw new JoinsException(je, "Sort.java: error in closing iterator.");
-            } catch (IOException ioe) {
-                throw new IOException("Sort.java: error in closing iterator.");
-            } catch (IndexException iE) {
-                throw new IndexException();
-            } catch (SortException e) {
-                throw new SortException("Sort.java: error in closing iterator.");
-            }
-        }
-
-
-
-
-
-        //last (closeFlag true)
+    public void close() 
+        throws JoinsException, 
+            IOException, IndexException
+    {
     } // End of close
 
 } // End of CLASS SortMerge
