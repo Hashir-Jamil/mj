@@ -146,6 +146,30 @@ public class SortMerge extends Iterator implements GlobalConst {
         this.proj_list = proj_list;
         this.n_out_flds = n_out_flds;
 
+        //prepare the tuples for the join and the
+        Tuple joinTuple = new Tuple();
+        AttrType[] joinTypes = new AttrType[n_out_flds];
+        short[] joinTupleStrSize = null;
+
+        joinTupleStrSize = TupleUtils.setup_op_tuple(
+            joinTuple,
+            joinTypes,
+            in1,
+            len_in1,
+            in2,
+            len_in2,
+            s1_sizes,
+            s2_sizes,
+            proj_list,
+            n_out_flds
+        );
+
+        Tuple tupleOuter = new Tuple();
+        tupleOuter.setHdr((short) in1.length,in1,s1_sizes);
+
+        Tuple tupleInner = new Tuple();
+        tupleInner.setHdr((short) in2.length,in2,s2_sizes);
+
         System.out.println("\n Non Sorted File \n");
 //        Tuple presorted = am1.get_next();
 //        do{
@@ -155,6 +179,7 @@ public class SortMerge extends Iterator implements GlobalConst {
 //            System.out.println("\n");
 //        }
 //        while (readTuple(presorted, am1));
+
 
         //create sorters and tuples
         Sort sorter1 = new Sort(in1, (short) (in1.length), s1_sizes, am1, join_col_in1, order,
@@ -271,6 +296,7 @@ public class SortMerge extends Iterator implements GlobalConst {
             try {
                 this.am1.close();
                 this.am2.close();
+                closeFlag = true;
             } catch (JoinsException je) {
                 throw new JoinsException(je, "Sort.java: error in closing iterator.");
             } catch (IOException ioe) {
@@ -281,8 +307,5 @@ public class SortMerge extends Iterator implements GlobalConst {
                 throw new SortException("Sort.java: error in closing iterator.");
             }
         }
-
-
-        //last (closeFlag true)
     } // End of close
 }
