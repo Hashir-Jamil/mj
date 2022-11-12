@@ -334,6 +334,7 @@ class JoinsDriver implements GlobalConst {
     t = new Tuple(size);
     try {
       t.setHdr((short) 3, Rtypes, Rsizes);
+      System.out.println(t.size());
     }
     catch (Exception e) {
       System.err.println("*** error in Tuple.setHdr() ***");
@@ -375,10 +376,9 @@ class JoinsDriver implements GlobalConst {
 
     Disclaimer();
     Query1();
-
+//
     Query2();
     Query3();
-
     Query4();
     Query5();
     // Query6();
@@ -541,23 +541,26 @@ class JoinsDriver implements GlobalConst {
 
     Tuple t = new Tuple();
 
-    AttrType [] Stypes = new AttrType[5];
-    Stypes[0] = new AttrType (AttrType.attrInteger);
-    Stypes[1] = new AttrType (AttrType.attrString);
-    Stypes[2] = new AttrType (AttrType.attrInteger);
-    Stypes[3] = new AttrType (AttrType.attrReal);
-    Stypes[4] = new AttrType (AttrType.attrString);
+    AttrType Stypes[] = {
+            new AttrType(AttrType.attrInteger),
+            new AttrType(AttrType.attrString),
+            new AttrType(AttrType.attrInteger),
+            new AttrType(AttrType.attrReal),
+            new AttrType(AttrType.attrString)
+    };
 
     //SOS
     short [] Ssizes = new short[2];
     Ssizes[0] = 30; //first elt. is 30
-    Ssizes[1] = 30; //second elt. is 20
+    Ssizes[1] = 20; //second elt. is 20
 
-    FldSpec [] Sprojection = new FldSpec[4];
-    Sprojection[0] = new FldSpec(new RelSpec(RelSpec.outer), 1);
-    Sprojection[1] = new FldSpec(new RelSpec(RelSpec.outer), 2);
-    Sprojection[2] = new FldSpec(new RelSpec(RelSpec.outer), 3);
-    Sprojection[3] = new FldSpec(new RelSpec(RelSpec.outer), 4);
+    FldSpec [] Sprojection = {
+            new FldSpec(new RelSpec(RelSpec.outer), 1),
+            new FldSpec(new RelSpec(RelSpec.outer), 2),
+            new FldSpec(new RelSpec(RelSpec.outer), 3),
+            new FldSpec(new RelSpec(RelSpec.outer), 4),
+            new FldSpec(new RelSpec(RelSpec.outer), 5)
+    };
 
     CondExpr [] selects = new CondExpr [1];
     selects = null;
@@ -566,7 +569,7 @@ class JoinsDriver implements GlobalConst {
     FileScan am = null;
     try {
       am  = new FileScan("sailors.in", Stypes, Ssizes,
-              (short)5, (short)4,
+              (short)5, (short)5,
               Sprojection, null);
     }
     catch (Exception e) {
@@ -621,15 +624,16 @@ class JoinsDriver implements GlobalConst {
     TupleOrder ascending = new TupleOrder(TupleOrder.Ascending);
     SortMerge sm = null;
     try {
-      sm = new SortMerge(Stypes, 4, Ssizes,
+      sm = new SortMerge(Stypes, 5, Ssizes,
               Rtypes, 3, Rsizes,
-              1, 4,
-              1, 4,
+              1, 1,
+              1, 1,
               10,
               am, am2,
               false, false, ascending,
               outFilter, proj_list, 2);
     }
+
     catch (Exception e) {
       System.err.println("*** join error in SortMerge constructor ***");
       status = FAIL;
@@ -889,7 +893,8 @@ class JoinsDriver implements GlobalConst {
             new FldSpec(new RelSpec(RelSpec.outer), 1),
             new FldSpec(new RelSpec(RelSpec.outer), 2),
             new FldSpec(new RelSpec(RelSpec.outer), 3),
-            new FldSpec(new RelSpec(RelSpec.outer), 4)
+            new FldSpec(new RelSpec(RelSpec.outer), 4),
+            new FldSpec(new RelSpec(RelSpec.outer), 5)
     };
 
     CondExpr[] selects = new CondExpr [1];
@@ -898,7 +903,7 @@ class JoinsDriver implements GlobalConst {
     Iterator am = null;
     try {
       am  = new FileScan("sailors.in", Stypes, Ssizes,
-              (short)5, (short) 4,
+              (short)5, (short) 5,
               Sprojection, null);
     }
     catch (Exception e) {
@@ -944,7 +949,7 @@ class JoinsDriver implements GlobalConst {
     TupleOrder ascending = new TupleOrder(TupleOrder.Ascending);
     SortMerge sm = null;
     try {
-      sm = new SortMerge(Stypes, 4, Ssizes,
+      sm = new SortMerge(Stypes, 5, Ssizes,
               Rtypes, 3, Rsizes,
               1, 4,
               1, 4,
@@ -1047,7 +1052,8 @@ class JoinsDriver implements GlobalConst {
             new FldSpec(new RelSpec(RelSpec.outer), 1),
             new FldSpec(new RelSpec(RelSpec.outer), 2),
             new FldSpec(new RelSpec(RelSpec.outer), 3),
-            new FldSpec(new RelSpec(RelSpec.outer), 4)
+            new FldSpec(new RelSpec(RelSpec.outer), 4),
+            new FldSpec(new RelSpec(RelSpec.outer), 5)
     };
 
     CondExpr[] selects = new CondExpr [1];
@@ -1056,7 +1062,7 @@ class JoinsDriver implements GlobalConst {
     Iterator am = null;
     try {
       am  = new FileScan("sailors.in", Stypes, Ssizes,
-              (short)5, (short) 4,
+              (short)5, (short) 5,
               Sprojection, null);
     }
     catch (Exception e) {
@@ -1104,7 +1110,7 @@ class JoinsDriver implements GlobalConst {
     short  []  jsizes    = new short[1];
     jsizes[0] = 30;
     try {
-      sm = new SortMerge(Stypes, 4, Ssizes,
+      sm = new SortMerge(Stypes, 5, Ssizes,
               Rtypes, 3, Rsizes,
               1, 4,
               1, 4,
@@ -1213,7 +1219,8 @@ class JoinsDriver implements GlobalConst {
             new FldSpec(new RelSpec(RelSpec.outer), 1),
             new FldSpec(new RelSpec(RelSpec.outer), 2),
             new FldSpec(new RelSpec(RelSpec.outer), 3),
-            new FldSpec(new RelSpec(RelSpec.outer), 4)
+            new FldSpec(new RelSpec(RelSpec.outer), 4),
+            new FldSpec(new RelSpec(RelSpec.outer), 5)
     };
 
     CondExpr[] selects = new CondExpr [1];
@@ -1241,7 +1248,7 @@ class JoinsDriver implements GlobalConst {
     Iterator am = null;
     try {
       am  = new FileScan("sailors.in", Stypes, Ssizes,
-              (short)5, (short)4,
+              (short)5, (short)5,
               Sprojection, null);
     }
     catch (Exception e) {
@@ -1275,7 +1282,7 @@ class JoinsDriver implements GlobalConst {
     TupleOrder ascending = new TupleOrder(TupleOrder.Ascending);
     SortMerge sm = null;
     try {
-      sm = new SortMerge(Stypes, 4, Ssizes,
+      sm = new SortMerge(Stypes, 5, Ssizes,
               Rtypes, 3, Rsizes,
               1, 4,
               1, 4,
