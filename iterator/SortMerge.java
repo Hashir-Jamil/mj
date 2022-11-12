@@ -1,18 +1,18 @@
 
-        package iterator;
+package iterator;
 
-        import heap.*;
-        import global.*;
-        import diskmgr.*;
-        import bufmgr.*;
-        import index.*;
-        import java.io.*;
-        import java.lang.reflect.Array;
+import heap.*;
+import global.*;
+import diskmgr.*;
+import bufmgr.*;
+import index.*;
+import java.io.*;
+import java.lang.reflect.Array;
 
-        import btree.*;
-        import chainexception.*;
-        import diskmgr.*;
-        import iterator.*;
+import btree.*;
+import chainexception.*;
+import diskmgr.*;
+import iterator.*;
 
 /*==========================================================================*/
 /**
@@ -153,6 +153,7 @@ public class SortMerge extends Iterator implements GlobalConst {
         this.proj_list = proj_list;
         this.n_out_flds = n_out_flds;
 
+        //check if enough memory blocks available
         if(amt_of_mem < 2){
             throw new JoinLowMemory("memory too low");
         }
@@ -172,7 +173,7 @@ public class SortMerge extends Iterator implements GlobalConst {
         }
         if (!in2_sorted) {
             innerStream = new Sort(in2, (short) in2.length, s2_sizes, am2, join_col_in2, order,
-                     sortFld2Len, amt_of_mem);
+                    sortFld2Len, amt_of_mem);
         }
 
         //prepare the tuples for the join output, inner and outer inputs
@@ -181,16 +182,16 @@ public class SortMerge extends Iterator implements GlobalConst {
         short[] joinTupleStrSize = null;
 
         joinTupleStrSize = TupleUtils.setup_op_tuple(
-            joinTuple,
-            joinTypes,
-            in1,
-            len_in1,
-            in2,
-            len_in2,
-            s1_sizes,
-            s2_sizes,
-            proj_list,
-            n_out_flds
+                joinTuple,
+                joinTypes,
+                in1,
+                len_in1,
+                in2,
+                len_in2,
+                s1_sizes,
+                s2_sizes,
+                proj_list,
+                n_out_flds
         );
 
         tupleOuter = new Tuple();
@@ -203,10 +204,8 @@ public class SortMerge extends Iterator implements GlobalConst {
         this.tupleInner = new Tuple();
         this.tupleInner.setHdr((short) in2.length,in2,s2_sizes);
 
+        //create IO Buffer for inner table
         matchBuff = new IoBuf();
-
-
-
         innerHeap = null;
         try {
             innerHeap = new Heapfile(null);
@@ -215,54 +214,33 @@ public class SortMerge extends Iterator implements GlobalConst {
             throw new SortException (e, "Creating heapfile for IoBuf use failed.");
         }
         matchBuff.init(matchSpace, 1, tupleInner.size(),innerHeap);
+
+        //check if these objects were successfully made
         if(matchBuff == null || tupleInner == null|| tupleOuter == null || joinTuple == null){
             throw new JoinNewFailed("Buffer pool not successfully allocated");
         }
+
+        //load the buffer with inner tuples
         tupleInner = innerStream.get_next();
         while(tupleInner != null){
-//            System.out.println(new String(tupleInner.returnTupleByteArray()));
             matchBuff.Put(tupleInner);
             tupleInner = innerStream.get_next();
         }
+
+        //reset for further use
         this.tupleInner = new Tuple();
         this.tupleInner.setHdr((short) in2.length,in2,s2_sizes);
-//
-//            System.out.println(new String(tupleOuter.returnTupleByteArray()));
-//            tupleOuter.tupleCopy(new Tuple());
-//            System.out.println("\n");
-//            tupleOuter = outerStream.get_next();
-//        }
-//
-//        tupleOuter = outerStream.get_next();
 
-        //create sorters and tuples
-//        Sort sorter1 = new Sort(in1, (short) (in1.length), s1_sizes, am1, join_col_in1, order,
-//                sortFld1Len, amt_of_mem);
-//        Tuple tuple1 = sorter1.get_next();
-//
-//        System.out.println("\n Sorted File \n");
-//        while(tupleOuter != null){
-//
-//            System.out.println(new String(tupleOuter.returnTupleByteArray()));
-//            tupleOuter.tupleCopy(new Tuple());
-//            System.out.println("\n");
-//            tupleOuter = outerStream.get_next();
-//        }
-////        sorter1.close();
-//        System.out.println("finished sort");
-//
-//        Sort sorter2 = new Sort(in2, (short) in2.length, s2_sizes, am2, join_col_in2, order,
-//                sortFld2Len, amt_of_mem);
-//        Tuple tuple2 = sorter2.get_next();
-//        sorter2.close();
-
-
+        if(tupleInner == null){
+            throw new JoinNewFailed("Buffer pool not successfully allocated");
+        }
     } // End of SortMerge constructor
 
     /*--------------------------------------------------------------------------*/
 
     /**
      * Reads a tuple from a stream in a less painful way.
+     * Did not use this!!!
      */
     private boolean readTuple(
             Tuple tuple,
@@ -327,62 +305,44 @@ public class SortMerge extends Iterator implements GlobalConst {
             UnknownKeyTypeException,
             Exception {
 
+        //take next tuple in outer array
         if(getNextOut){
             currentOutterTuple = outerStream.get_next();
             getNextOut = false;
         }
 
+        //if no more tuples left in outer array
         if (currentOutterTuple == null) {
             return null;
         }
 
+        //prepare inner tuples again for use
+        this.tupleInner = new Tuple();
+        this.tupleInner.setHdr((short) in2.length,in2,s2_sizes);
+        tupleInner = matchBuff.Get(tupleInner);
 
-            this.tupleInner = new Tuple();
-            this.tupleInner.setHdr((short) in2.length,in2,s2_sizes);
+        //compare equality of selected outer tuples with all inner tuples
+        while( tupleInner!= null){
+            int x = TupleUtils.CompareTupleWithTuple(in1[join_col_in1-1],currentOutterTuple,join_col_in1,tupleInner,join_col_in2);
+            if(x == 0) { //if equality of tuples then join
+                Projection.Join(currentOutterTuple,
+                        in1,
+                        tupleInner,
+                        in2,
+                        joinTuple,    // The Joined-Tuple
+                        proj_list,      // The projection list
+                        n_out_flds  // # fields in joined-tuple
+                );
+                return joinTuple;
+            }
+            //get next inner tuple for next round of loop
             tupleInner = matchBuff.Get(tupleInner);
-           while( tupleInner!= null){
-
-               int x = TupleUtils.CompareTupleWithTuple(in1[join_col_in1-1],currentOutterTuple,join_col_in1,tupleInner,join_col_in2);
-               if( x == 0) {
-//                   System.out.println("same");
-                  Projection.Join(currentOutterTuple,
-                          in1,
-                          tupleInner,
-                          in2,
-                          joinTuple,    // The Joined-Tuple
-                          proj_list,      // The projection list
-                          n_out_flds  // # fields in joined-tuple
-                  );
-//                  System.out.println(new String(joinTuple.returnTupleByteArray()));
-                  return joinTuple;
-
-//
-//                  System.out.println("\n");
-//                  System.out.println(new String(joinTuple.returnTupleByteArray()));
-////                  System.out.println(new String(tupleInner.returnTupleByteArray()));
-//                  System.out.println("\n");
-//                  joinTuple = new Tuple();
-//                  AttrType[] joinTypes = new AttrType[n_out_flds];
-//                  short[] joinTupleStrSize = null;
-//                  joinTupleStrSize = TupleUtils.setup_op_tuple(
-//                          joinTuple,
-//                          joinTypes,
-//                          in1,
-//                          len_in1,
-//                          in2,
-//                          len_in2,
-//                          s1_sizes,
-//                          s2_sizes,
-//                          proj_list,
-//                          n_out_flds
-//                  );
-//                  tupleInner = matchBuff.Get(tupleInner);
-              }
-               tupleInner = matchBuff.Get(tupleInner);
-           }
-//        System.out.println("\n");
-           matchBuff.reread();
+        }
+        //prepare buffer for a reread for next outer tuple and reset flag for the first if statement to be triggered
+        matchBuff.reread();
         getNextOut = true;
+
+        //recursion...ᕦ(òᴥó)ᕥ...(̿▀̿‿ ̿▀̿ ̿)
         return get_next();
     } // End of get_next
 
@@ -402,11 +362,11 @@ public class SortMerge extends Iterator implements GlobalConst {
             IOException, IndexException, SortException {
         if (!this.closeFlag) {
             try {
+                //close all iterators
                 this.am1.close();
                 this.am2.close();
                 this.outerStream.close();
                 this.innerStream.close();
-
                 closeFlag = true;
             } catch (JoinsException je) {
                 throw new JoinsException(je, "Sort.java: error in closing iterator.");
