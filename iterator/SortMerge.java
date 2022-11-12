@@ -52,7 +52,6 @@ public class SortMerge extends Iterator implements GlobalConst {
     private IoBuf matchBuff;
     private Tuple tupleOuter, tupleInner, joinTuple, currentOutterTuple;
     private boolean getNextOut = true;
-    private boolean getNextIn = true;
 
     /**
      * constructor,initialization
